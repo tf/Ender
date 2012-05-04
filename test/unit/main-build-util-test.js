@@ -32,65 +32,76 @@ var buster = require('buster')
 buster.testCase('Build util', {
     'packageList': {
         'setUp': function () {
-          this.testPackageList = function (args, expected) {
-            var packages = buildUtil.packageList(args)
-            assert.equals(packages, expected)
+          this.testPackageList = function (args, expected, done) {
+            var forBuild = expected.forBuild || expected
+              , forInstall = expected.forInstall || expected;
+
+            buildUtil.packageList(args, function (err, packages) {
+              assert.equals(packages.forBuild, forBuild)
+              assert.equals(packages.forInstall, forInstall)
+              done()
+            })
           }
         }
 
-      , 'test empty args': function () {
+      , 'test empty args': function (done) {
             // not really going to happen given the current args-parse
-            this.testPackageList({ }, [ 'ender-js', '.' ])
+            this.testPackageList({ }, [ 'ender-js', '.' ], done)
           }
 
-      , 'test no args': function () {
-            this.testPackageList({ packages: [] }, [ 'ender-js', '.' ])
+      , 'test no args': function (done) {
+            this.testPackageList({ packages: [] }, [ 'ender-js', '.' ], done)
           }
 
-      , 'test 1 package': function () {
-          this.testPackageList({ packages: [ 'apkg' ] }, [ 'ender-js', 'apkg' ])
+      , 'test 1 package': function (done) {
+          this.testPackageList({ packages: [ 'apkg' ] }, [ 'ender-js', 'apkg' ], done)
         }
 
-      , 'test multiple packages': function () {
+      , 'test multiple packages': function (done) {
           this.testPackageList(
               { packages: [ 'apkg', 'pkg2', 'pkg3', '.', '..' ] }
             , [ 'ender-js', 'apkg', 'pkg2', 'pkg3', '.', '..' ]
+            , done
           )
         }
 
-      , 'test duplicate packages': function () {
+      , 'test duplicate packages': function (done) {
           this.testPackageList(
               { packages: [ 'apkg', 'pkg2', 'apkg' ] }
             , [ 'ender-js', 'apkg', 'pkg2' ]
+            , done
           )
         }
 
-      , 'test noop no args': function () {
-          this.testPackageList({ noop: true }, [ '.' ])
+      , 'test noop no args': function (done) {
+          this.testPackageList({ noop: true }, [ '.' ], done)
         }
 
-      , 'test noop and packages': function () {
+      , 'test noop and packages': function (done) {
           this.testPackageList(
               { packages: [ 'foo', 'bar', '.', '../../bang', 'bar', 'foo' ], noop: true }
             , [ 'foo', 'bar', '.', '../../bang' ]
+            , done
           )
         }
 
-      , 'test sans no args': function () {
-          this.testPackageList({ sans: true }, [ '.' ])
+      , 'test sans no args': function (done) {
+          this.testPackageList({ sans: true }, [ '.' ], done)
         }
 
-      , 'test sans and packages': function () {
+      , 'test sans and packages': function (done) {
           this.testPackageList(
               { packages: [ 'foo', 'bar', '.', '../../bang', 'bar', 'foo' ], sans: true }
             , [ 'foo', 'bar', '.', '../../bang' ]
+            , done
           )
         }
 
-      , 'test noop and sans and packages': function () {
+      , 'test noop and sans and packages': function (done) {
           this.testPackageList(
               { packages: [ 'foo', 'bar', '.', '../../bang', 'bar', 'foo' ], sans: true, noop: true }
             , [ 'foo', 'bar', '.', '../../bang' ]
+            , done
           )
         }
     }

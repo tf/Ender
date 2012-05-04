@@ -71,7 +71,7 @@ testCase('Build', {
         , writeMock = this.mock(write)
 
         , optionsArg = { options: 1 }
-        , packagesArg = { packages: 1 }
+        , packagesArg = { forBuild: { packages: 1 }, forInstall: { packages: 2} }
         , localizedArg = [ 'foobar' ]
         , installedArg = [ { installed: 1 } ]
         , npmTreeArg = { tree: 1 }
@@ -81,7 +81,7 @@ testCase('Build', {
         , parentsArg = { parents: 1 }
         , dataArg = { packageJSON: { packageJSON: 1, name: 'foobar' } }
 
-      mockBuildUtil.expects('packageList').once().withExactArgs(optionsArg).returns(packagesArg)
+      mockBuildUtil.expects('packageList').once().withArgs(optionsArg).callsArgWith(1, null, packagesArg)
       outMock.expects('buildInit').once()
       mockUtil.expects('mkdir').once().withArgs('node_modules').callsArg(1)
       mockRepository.expects('setup').once().callsArg(0)
@@ -91,9 +91,9 @@ testCase('Build', {
         .callsArgWith(1, null, [ { installed: installedArg, tree: npmTreeArg, pretty: prettyArg } ])
       mockRepository.expects('packup').once()
       outMock.expects('installedFromRepository').once().withArgs(installedArg, npmTreeArg, prettyArg)
-      mockBuildUtil.expects('constructDependencyTree').once().withArgs(packagesArg).callsArgWith(1, null, depTreeArg)
+      mockBuildUtil.expects('constructDependencyTree').once().withArgs(packagesArg.forBuild).callsArgWith(1, null, depTreeArg)
       SourceBuildMock.expects('create').once().withExactArgs(optionsArg).returns(sourceBuild)
-      mockBuildUtil.expects('localizePackageList').withExactArgs(packagesArg, depTreeArg).returns(localizedArg)
+      mockBuildUtil.expects('localizePackageList').withExactArgs(packagesArg.forBuild, depTreeArg).returns(localizedArg)
       mockBuildUtil
         .expects('forEachUniqueOrderedDependency')
         .once()
