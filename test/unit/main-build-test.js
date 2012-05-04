@@ -81,7 +81,7 @@ testCase('Build', {
         , parentsArg = { parents: 1 }
         , dataArg = { packageJSON: { packageJSON: 1, name: 'foobar' } }
 
-      mockBuildUtil.expects('packageList').once().withExactArgs(optionsArg).returns(packagesArg)
+      mockBuildUtil.expects('packageList').once().withArgs(optionsArg).callsArgWith(1, null, packagesArg)
       outMock.expects('buildInit').once()
       mockUtil.expects('mkdir').once().withArgs('node_modules').callsArg(1)
       mockRepository.expects('setup').once().callsArg(0)
