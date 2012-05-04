@@ -38,6 +38,20 @@ buster.testCase('Build util', {
               done()
             })
           }
+
+          this.setupJSONExpectations = function (options) {
+            var packageUtilMock = this.mock(packageUtil)
+              , json = {}
+
+            packageUtilMock.expects('readPackageJSON')
+              .once()
+              .withArgs([], '.')
+              .callsArgWith(2, null, json)
+            packageUtilMock.expects('getDevDependenciesFromJSON')
+              .once()
+              .withArgs(json)
+              .returns(options.devDependecies || [])
+          }
         }
 
       , 'test empty args': function (done) {
@@ -97,6 +111,36 @@ buster.testCase('Build util', {
           this.testPackageList(
               { packages: [ 'foo', 'bar', '.', '../../bang', 'bar', 'foo' ], sans: true, noop: true }
             , [ 'foo', 'bar', '.', '../../bang' ]
+            , done
+          )
+        }
+
+      , 'test adding dev dependencies from top level package.json when dev option is present': function (done) {
+          this.setupJSONExpectations({ devDependecies: ['dev1', 'dev2'] })
+
+          this.testPackageList(
+              { packages: [ 'foo', 'bar', '.' ], dev: true }
+            , [ 'ender-js', 'foo', 'bar', '.', 'dev1', 'dev2' ]
+            , done
+          )
+        }
+
+      , 'test removes duplicate dev dependencies when dev option is present': function (done) {
+          this.setupJSONExpectations({ devDependecies: ['dev1', 'dev1'] })
+
+          this.testPackageList(
+              { packages: [ 'foo', 'bar', '.' ], dev: true }
+            , [ 'ender-js', 'foo', 'bar', '.', 'dev1' ]
+            , done
+          )
+        }
+
+      , 'test appends only dev dependencies which do not already occur as normal dependencies when dev option is present': function (done) {
+          this.setupJSONExpectations({ devDependecies: ['dev1', 'foo'] })
+
+          this.testPackageList(
+              { packages: [ 'foo', 'bar', '.' ], dev: true }
+            , [ 'ender-js', 'foo', 'bar', '.', 'dev1' ]
             , done
           )
         }
