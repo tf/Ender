@@ -104,6 +104,26 @@ buster.testCase('Build util', {
             , done
           )
         }
+
+      , 'test adding dev dependencies from top level package.json when dev option is present': function (done) {
+          var packageUtilMock = this.mock(packageUtil)
+            , json = {}
+
+          packageUtilMock.expects('readPackageJSON')
+            .once()
+            .withArgs([], '.')
+            .callsArgWith(2, null, json)
+          packageUtilMock.expects('getDevDependenciesFromJSON')
+            .once()
+            .withArgs(json)
+            .returns(['dev1', 'dev2'])
+
+          this.testPackageList(
+              { packages: [ 'foo', 'bar', '.' ], dev: true }
+            , { forBuild: [ 'ender-js', 'foo', 'bar', '.', 'dev1', 'dev2' ], forInstall: [ 'ender-js', 'foo', 'bar', '.' ] }
+            , done
+          )
+        }
     }
 
   , 'uniquePackages': {
