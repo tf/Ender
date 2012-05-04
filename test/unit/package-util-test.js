@@ -280,6 +280,32 @@ testCase('Package util', {
         }
     }
 
+  , 'getDevDependenciesFromJSON': {
+        'test missing devDependencies': function () {
+          assert.equals(packageUtil.getDevDependenciesFromJSON({}), [])
+        }
+
+      , 'test empty devDependencies array': function () {
+          assert.equals(packageUtil.getDevDependenciesFromJSON({ devDependencies: [] }), [])
+        }
+
+      , 'test empty devDependencies object': function () {
+          assert.equals(packageUtil.getDevDependenciesFromJSON({ devDependencies: {} }), [])
+        }
+
+      , 'test devDependencies array': function () {
+          assert.equals(packageUtil.getDevDependenciesFromJSON({ devDependencies: [ 'dep1', 'dep2', 'dep3' ] }), [ 'dep1', 'dep2', 'dep3' ])
+        }
+
+      , 'test devDependencies object': function () {
+          assert.equals(packageUtil.getDevDependenciesFromJSON({ devDependencies: {
+              'dep1': '*'
+            , 'dep2': '0.0.1'
+            , 'dep3': '>=0.1.1'
+          }}), [ 'dep1', 'dep2', 'dep3' ])
+        }
+    }
+
   , 'getDependenciesFromDirectory': {
         'test no node_modules directory': function (done) {
           var pathMock = this.mock(path)
